@@ -13,9 +13,9 @@ Chat Trigger (`SDR Chat Entry`, streaming, private) → SDR Battlecard Agent.
 `prospect + competitor` + context (e.g. `Acme, vs Competitor X, 50 seats, SOC2?`).
 Memory: session window 5 via Chat Trigger `sessionId`.
 
-## Topology
+## Topology (full loop — was mock subset, now complete)
 
-Chat Trigger → Agent (maxIterations 30, system `=Current date`) + Brief Writer Model (gpt-5-mini, retry 3x/1s) + Chat Memory + Retrieve battlecard passages (`retrieveIndex`, `topK 5`, retry 3x/1s). Reply inline; no Slack in v0. Deferred: grep/read HTTP tools, outputParser, ingest lane, Slack shell sub-workflow call.
+Chat Trigger → Agent (maxIterations 30, system `=Current date`) + Brief Writer Model (gpt-5-mini, retry 3x/1s) + Chat Memory + Retrieve battlecard passages (`retrieveIndex`, `topK 5`, retry 3x/1s) + Grep file for exact term (HTTP tool, `retrieval/files/grep`, `context_chars` 200, timeout 30s, retry 3x/1s) + Read file section (HTTP tool, `retrieval/files/read`, `max_length` 4000, timeout 30s, retry 3x/1s) + Brief Output Parser (structured: `tl_dr` + `citations` required; `pains/battlecard/pricing_notes/discovery_qs`). Reply inline; no Slack in v0. Remaining follow-up: Slack shell calling this as sub-workflow.
 
 ## Credentials / env — all placeholder, none on file
 
@@ -41,4 +41,4 @@ Broad retrieve first (pains/differentiators), then grep for exact prices/clauses
 
 ## Status
 
-`validate_workflow` valid (5 nodes), 4/4 connections verified pre-migration. TEST unrun — display only.
+`validate_workflow` valid pre-migration (8 nodes), 7/7 connections verified. TEST unrun — display only.
