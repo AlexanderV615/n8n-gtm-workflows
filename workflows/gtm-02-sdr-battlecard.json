@@ -1,0 +1,165 @@
+{
+  "name": "Prepare SDR call brief (mock)",
+  "nodes": [
+    {
+      "id": "ed1d56ed-12cf-4674-8e90-fcd9b816f1cc",
+      "name": "SDR Chat Entry",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        112
+      ],
+      "parameters": {
+        "public": false,
+        "availableInChat": true,
+        "options": {
+          "responseMode": "streaming"
+        }
+      },
+      "webhookId": "0235ccbd-0b9c-4110-830c-5dea292012cc"
+    },
+    {
+      "id": "d54d6639-d199-4db9-909f-cfbb946b3582",
+      "name": "SDR Battlecard Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        288,
+        112
+      ],
+      "parameters": {
+        "promptType": "auto",
+        "options": {
+          "systemMessage": "=Current date: {{ $now }}.\n\nYou are an SDR call-prep assistant (MOCK DEMO). Start with the Retrieve battlecard passages tool for every question. Ground every claim in tool output and cite file plus pages. If the index has nothing, say so plainly. Respond as a short markdown brief: TL;DR, pains, battlecard, pricing notes, discovery questions, citations.",
+          "maxIterations": 30
+        }
+      }
+    },
+    {
+      "id": "11ba5887-7e1b-44a7-9acc-badd22493d17",
+      "name": "Brief Writer Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        336
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "d916921f-c348-4555-a4b1-48b74a8a26fb",
+      "name": "Chat Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        352,
+        336
+      ],
+      "parameters": {
+        "sessionIdType": "fromInput",
+        "contextWindowLength": 5
+      }
+    },
+    {
+      "id": "768ff31f-517e-4155-b66d-5427ab5bdd9e",
+      "name": "Retrieve battlecard passages",
+      "type": "@llamaindex/n8n-nodes-llamacloud.llamaParsePlatformTool",
+      "typeVersion": 1,
+      "position": [
+        480,
+        336
+      ],
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use for SDR call-prep questions answerable from the battlecard index (pains, differentiators, pricing notes, objections, case studies). Input is a natural-language query. Returns grounded passages with file and page refs. Use when the question is conceptual or spans multiple docs.",
+        "operation": "retrieveIndex",
+        "indexId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "mock-sdr-battlecard"
+        },
+        "topK": 5
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    }
+  ],
+  "connections": {
+    "Brief Writer Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "SDR Battlecard Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "SDR Battlecard Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve battlecard passages": {
+      "ai_tool": [
+        [
+          {
+            "node": "SDR Battlecard Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SDR Chat Entry": {
+      "main": [
+        [
+          {
+            "node": "SDR Battlecard Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [
+    {
+      "name": "demo"
+    },
+    {
+      "name": "sdr"
+    },
+    {
+      "name": "rag"
+    }
+  ],
+  "description": "SDR call-prep battlecard demo over LlamaCloud Index v2 (mock: placeholder indexId, pinned test data, no live retrieval). Chat Trigger + Agent + retrieveIndex tool.",
+  "meta": {
+    "migratedFrom": "llama-harness/wf-sdr-battlecard (MCP get_workflow dump normalized to n8n export shape)",
+    "mock": "placeholder indexId + creds, untested without live LlamaCloud/OpenAI creds"
+  }
+}
