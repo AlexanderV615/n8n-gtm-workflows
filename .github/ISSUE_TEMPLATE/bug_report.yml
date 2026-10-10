@@ -1,0 +1,15 @@
+name: Bug report
+description: Workflow bug
+body:
+  - type: input
+    id: workflow
+    attributes:
+      label: Workflow file
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Repro steps
+    validations:
+      required: true

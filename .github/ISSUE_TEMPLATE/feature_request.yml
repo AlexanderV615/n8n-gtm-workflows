@@ -1,0 +1,9 @@
+name: Feature request
+description: New workflow / improvement
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: Idea
+    validations:
+      required: true

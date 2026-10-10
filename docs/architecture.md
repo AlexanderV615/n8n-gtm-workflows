@@ -1,0 +1,6 @@
+# Architecture
+
+Funnel map goes here. List the 5 GTM workflows, triggers, and handoffs:
+
+- `gtm-01-xxx` — trigger: … → outputs to: …
+- `gtm-02-xxx` — …
