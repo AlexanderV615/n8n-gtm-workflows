@@ -1,0 +1,221 @@
+{
+  "name": "wf-01-stage1",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## wf-01 stage-1: Drive poll → chunk → embed → Qdrant\n**Buyer setup (5 min):**\n1. Google OAuth credential on nodes 2+3 (any Google credential).\n2. Jina key: create credential type `Bearer Auth` (raw key only), attach to node 7 `credentials.httpBearerAuth`.\n3. Create collection once: `curl -X PUT localhost:6333/collections/wf-01 -H 'Content-Type: application/json' -d '{\"vectors\":{\"size\":1024,\"distance\":\"Cosine\"}}'`.\n4. Join networks so n8n reaches Qdrant: `docker network connect n8n-self-hosted_default qdrant` (or re-point node 9 URL).\n5. Tune here: node 2 `queryString`/folder, node 5 `chunkSize`, node 6 model/dims, node 9 collection name.\n**Design:** batch embed (1 Jina call) → deterministic pointIds (re-drop overwrites, zero new points) → single Qdrant upsert. Failures land on node 10 (wire Slack/email there for prod).",
+        "height": 480,
+        "width": 420,
+        "color": 4
+      },
+      "id": "readme-sticky",
+      "name": "0. README (setup + tuneables)",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [0, -320]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "hours", "hoursInterval": 1 }]
+        }
+      },
+      "id": "poll-trigger",
+      "name": "1. Poll Trigger (Schedule)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "operation": "search",
+        "searchMethod": "query",
+        "queryString": "trashed = false",
+        "filter": { "whatToSearch": "files" },
+        "returnAll": false,
+        "limit": 100
+      },
+      "id": "drive-find",
+      "name": "2. Find (Drive fileFolder search)",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [220, 0],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "download",
+        "fileId": { "__rl": true, "mode": "id", "value": "={{ $('2. Find (Drive fileFolder search)').item.json.id }}" },
+        "options": {
+          "binaryPropertyName": "data",
+          "googleFileConversion": { "conversion": { "docsToFormat": "text/plain" } }
+        }
+      },
+      "id": "drive-download",
+      "name": "3. Download (Drive file download)",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [440, 0],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// 4. Clean / Distill — binary -> text, strip noise, sha256 fileHash.\n// Binary lives in $binary (n8n-binary-and-data-official), never $json.\nconst buf = await this.helpers.getBinaryDataBuffer(0, 'data');\nconst crypto = require('crypto');\nconst raw = buf.toString('utf-8');\nconst distilled = raw.replace(/Page\\s*\\d+/gi, '').replace(/\\r/g, '').trim();\nconst meta = $input.first().json;\nconst fileHash = crypto.createHash('sha256').update(buf).digest('hex');\nreturn [{ json: { distilled, fileId: meta.id, fileName: meta.name, fileHash } }];"
+      },
+      "id": "clean-distill",
+      "name": "4. Clean / Distill",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 0]
+    },
+    {
+      "parameters": {
+        "text": "={{ $('4. Clean / Distill').item.json.distilled }}",
+        "chunkerType": "recursive",
+        "chunkSize": 512,
+        "minCharactersPerChunk": 24
+      },
+      "id": "chunk-chonkie",
+      "name": "5. Chunk (Chonkie recursive)",
+      "type": "n8n-nodes-chonkie.chonkie",
+      "typeVersion": 1,
+      "position": [880, 0]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// 6. Collect — aggregate chunk items, attach file meta, deterministic pointIds.\n// pointId = 60-bit int from sha256(fileHash:chunkIndex) -> re-drop overwrites, zero new points.\nconst crypto = require('crypto');\nconst file = $('4. Clean / Distill').first().json;\nconst chunks = $input.all().map((it) => it.json);\nconst meta = chunks.map((c, i) => {\n  const h = crypto.createHash('sha256').update(file.fileHash + ':' + i).digest('hex');\n  return { pointId: parseInt(h.slice(0, 15), 16), text: c.text, chunkIndex: i, fileId: file.fileId, fileName: file.fileName, fileHash: file.fileHash };\n});\nconst body = JSON.stringify({ model: 'jina-embeddings-v5-text-small', task: 'retrieval.passage', dimensions: 1024, input: meta.map((m) => m.text) });\nreturn [{ json: { body, meta } }];"
+      },
+      "id": "collect-batch",
+      "name": "6. Collect (batch + pointIds)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.jina.ai/v1/embeddings",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $('6. Collect (batch + pointIds)').item.json.body }}",
+        "options": {}
+      },
+      "credentials": {
+        "httpBearerAuth": { "id": "", "name": "Jina API key — create Bearer Auth credential in n8n UI, paste raw key" }
+      },
+      "id": "embed-jina",
+      "name": "7. Embed (Jina v5-small 1024-dim)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1320, 0],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// 8. Build upsert — join Jina vectors with chunk meta by index, JSON-safe via stringify.\nconst vecs = $input.first().json.data;\nconst meta = $('6. Collect (batch + pointIds)').first().json.meta;\nconst points = meta.map((m, i) => ({\n  id: m.pointId,\n  vector: vecs[i].embedding,\n  payload: { text: m.text, source: 'drive', fileId: m.fileId, fileName: m.fileName, section: 'chunk-' + m.chunkIndex, chunkIndex: m.chunkIndex, fileHash: m.fileHash, ingestedAt: new Date().toISOString() }\n}));\nreturn [{ json: { pointsBody: JSON.stringify({ points }) } }];"
+      },
+      "id": "build-upsert",
+      "name": "8. Build upsert body",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1540, 0]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "http://qdrant:6333/collections/wf-01/points",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $('8. Build upsert body').item.json.pointsBody }}",
+        "options": {}
+      },
+      "id": "qdrant-upsert",
+      "name": "9. Upsert (Qdrant REST, deterministic ids)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1760, 0],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// 10. Error Log — structured failure record, visible in executions.\n// Template: wire Slack/email here for prod. Error item carries the upstream message.\nconst e = $input.first().json;\nconst msg = (e && (e.error?.message || e.message)) || JSON.stringify(e).slice(0, 500);\nreturn [{ json: { error: 'wf-01-stage1-failure', message: msg, time: new Date().toISOString() } }];"
+      },
+      "id": "error-log",
+      "name": "10. Error Log (wire Slack/email for prod)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1320, 320]
+    }
+  ],
+  "connections": {
+    "1. Poll Trigger (Schedule)": {
+      "main": [[{ "node": "2. Find (Drive fileFolder search)", "type": "main", "index": 0 }]]
+    },
+    "2. Find (Drive fileFolder search)": {
+      "main": [
+        [{ "node": "3. Download (Drive file download)", "type": "main", "index": 0 }],
+        [{ "node": "10. Error Log (wire Slack/email for prod)", "type": "main", "index": 0 }]
+      ]
+    },
+    "3. Download (Drive file download)": {
+      "main": [
+        [{ "node": "4. Clean / Distill", "type": "main", "index": 0 }],
+        [{ "node": "10. Error Log (wire Slack/email for prod)", "type": "main", "index": 0 }]
+      ]
+    },
+    "4. Clean / Distill": {
+      "main": [[{ "node": "5. Chunk (Chonkie recursive)", "type": "main", "index": 0 }]]
+    },
+    "5. Chunk (Chonkie recursive)": {
+      "main": [[{ "node": "6. Collect (batch + pointIds)", "type": "main", "index": 0 }]]
+    },
+    "6. Collect (batch + pointIds)": {
+      "main": [[{ "node": "7. Embed (Jina v5-small 1024-dim)", "type": "main", "index": 0 }]]
+    },
+    "7. Embed (Jina v5-small 1024-dim)": {
+      "main": [
+        [{ "node": "8. Build upsert body", "type": "main", "index": 0 }],
+        [{ "node": "10. Error Log (wire Slack/email for prod)", "type": "main", "index": 0 }]
+      ]
+    },
+    "8. Build upsert body": {
+      "main": [[{ "node": "9. Upsert (Qdrant REST, deterministic ids)", "type": "main", "index": 0 }]]
+    },
+    "9. Upsert (Qdrant REST, deterministic ids)": {
+      "main": [
+        [],
+        [{ "node": "10. Error Log (wire Slack/email for prod)", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {},
+  "pinData": {},
+  "versionId": "",
+  "id": "wf-01-stage1",
+  "meta": { "instanceId": "alex-demo" },
+  "staticData": null,
+  "active": false,
+  "triggerCount": 0,
+  "updatedAt": "2026-10-09T00:00:00.000Z",
+  "createdAt": "2026-10-08T00:00:00.000Z"
+}
