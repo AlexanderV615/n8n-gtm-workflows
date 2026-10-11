@@ -29,7 +29,3 @@ Intake / Availability / Book / Lookup / Cancel / Reschedule / Failures / Unknown
 3. Availability vs real Cal.com → v2 404 on foreign event ID → `Respond availability error` (error path proven live).
 4. Error-workflow mapping with simulated failure → row verified in table.
 5. Live prove-out (your stack): book/cancel/reschedule success (writes real Cal.com — use throwaway event type + your IDs).
-
-## Status
-
-Reshaped from broken 57-node vendor example (literal keys, v1 endpoints, dead refs) to validated 60-node build, zero warnings. Connect your Cal.com stack for the live booking pass.
