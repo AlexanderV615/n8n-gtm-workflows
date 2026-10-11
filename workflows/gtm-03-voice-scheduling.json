@@ -1,0 +1,2807 @@
+{
+  "name": "Handle voice appointment bookings (Vapi + Cal.com)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "calendar-book12",
+        "responseMode": "responseNode",
+        "options": {},
+        "authentication": "headerAuth"
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -2032,
+        400
+      ],
+      "id": "dd8bd8d6-6d0e-4fcc-bd26-c7433b3d7791",
+      "name": "Tool-Calendar-Webhook1",
+      "webhookId": "2d6752ab-5bde-44d1-b8aa-f5ad4449f6c1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Vapi webhook secret"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7e9db00d-b517-4719-8c26-98ff428b6b81",
+              "leftValue": "={{ $('Tool-Calendar-Webhook1').item.json.body.message.type }}",
+              "rightValue": "tool-calls",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1584,
+        400
+      ],
+      "id": "cc4c6558-3622-433d-8a6a-7c4d702c84b3",
+      "name": "Check voice tool-call"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Tool-Calendar-Webhook1').item.json.body.message.toolCalls[0].function.name }}",
+                    "rightValue": "checkCalendarVAPIHealth",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "82845089-ca53-4b20-8a19-245c3978bd99"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "checkCalendarVAPIHealth"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "500f733d-bc25-44db-bb1b-7a8f634ab1ec",
+                    "leftValue": "={{ $('Tool-Calendar-Webhook1').item.json.body.message.toolCalls[0].function.name }}",
+                    "rightValue": "bookCalendarVAPIHealth",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "bookCalendarVAPIHealth"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c712f1a0-ada8-4669-967b-2bb316b181b1",
+                    "leftValue": "={{ $('Tool-Calendar-Webhook1').item.json.body.message.toolCalls[0].function.name }}",
+                    "rightValue": "getCalendarVAPIHealth",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "getCalendarVAPIHealth"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "bc09b7c0-2a14-4cee-a0bd-8c41173c5127",
+                    "leftValue": "={{ $('Tool-Calendar-Webhook1').item.json.body.message.toolCalls[0].function.name }}",
+                    "rightValue": "cancelCalendarVAPIHealth",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Cancel"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "eae5cd40-0704-481b-a014-dd49cf0e9003",
+                    "leftValue": "={{ $('Tool-Calendar-Webhook1').item.json.body.message.toolCalls[0].function.name }}",
+                    "rightValue": "rescheduleCalendarVAPIHealth",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Reschedule"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Unknown function"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -1360,
+        352
+      ],
+      "id": "efc141a2-3b8a-4144-9b03-2d335ae37322",
+      "name": "Route by function name"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7d7501f6-b357-4524-9c8d-75b29e1a820b",
+              "name": "startTime",
+              "value": "={{ DateTime\n  .fromISO($('Extract tool-call args', { zone: 'utc' }).item.json.args.requestedTime, { zone: 'utc' })\n  .minus({ hours: 1 })\n  .toFormat(\"yyyy-MM-dd'T'HH:mm:ssZZ\") }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1136,
+        -560
+      ],
+      "id": "5575f566-24b5-4ff5-8771-e6d3259a10a6",
+      "name": "Set availability window"
+    },
+    {
+      "parameters": {
+        "url": "https://api.cal.com/v2/slots",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "calApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "eventTypeId",
+              "value": "={{ $('Extract call context').item.json.EventTypeID }}"
+            },
+            {
+              "name": "startTime",
+              "value": "={{ $json.startTime }}"
+            },
+            {
+              "name": "endTime",
+              "value": "={{ DateTime.fromISO($json.startTime, { zone: 'utc' }).plus({ hours: 2 }).toFormat(\"yyyy-MM-dd'T'HH:mm:ssZZ\") }}"
+            },
+            {
+              "name": "timeZone",
+              "value": "UTC"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -912,
+        -560
+      ],
+      "id": "6c799619-3ca8-4bb3-9846-fa984e939b8c",
+      "name": "Fetch day slots",
+      "notesInFlow": false,
+      "alwaysOutputData": false,
+      "credentials": {
+        "calApi": {
+          "id": "",
+          "name": "Cal account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// 1. Get requestedTime from webhook input\nconst requestedTimeRaw = String(\n  $('Extract tool-call args').item.json.args.requestedTime || ''\n).trim();\n\n// 2. Normalize requestedTime with explicit +00:00 (UTC)\nlet requestedTimeISO = null;\nif (requestedTimeRaw) {\n  try {\n    // Append +00:00 if no timezone offset is present (e.g. \"+02:00\" or \"-08:00\")\n    const hasOffset = /[+-]\\d{2}:\\d{2}$/.test(requestedTimeRaw);\n    const withTZ = hasOffset ? requestedTimeRaw : requestedTimeRaw + '+00:00';\n\n    requestedTimeISO = new Date(withTZ).toISOString();\n  } catch (e) {\n    requestedTimeISO = null;\n  }\n}\n\n// 3. Extract slots\nconst slotsObj = items[0]?.json?.slots;\nif (!slotsObj || typeof slotsObj !== 'object') {\n  return [{ json: { matchFound: false, reason: \"no_slots\", slots: [] } }];\n}\n\n// 4. Normalize slots into ISO\nconst slotsList = Object.values(slotsObj)\n  .flat()\n  .map(s => {\n    const raw = String(s?.time || '').trim();\n    let iso = null;\n    try {\n      iso = raw ? new Date(raw).toISOString() : null;\n    } catch (e) {\n      iso = null;\n    }\n    return { time: raw, iso };\n  })\n  .filter(s => s.time);\n\n// 5. If no requestedTime \u2192 return all slots\nif (!requestedTimeISO) {\n  return [{\n    json: {\n      requestedTime: requestedTimeRaw || null,\n      requestedTimeISO: null,\n      matchFound: false,\n      reason: \"no_requested_time\",\n      slots: slotsList.map(s => s.time)\n    }\n  }];\n}\n\n// 6. Find match by comparing actual instants (UTC ms), not raw strings\nconst hit = slotsList.find(s => {\n  if (!s.iso || !requestedTimeISO) return false;\n  return new Date(s.iso).getTime() === new Date(requestedTimeISO).getTime();\n});\n\n// 7. Return result\nreturn [{\n  json: {\n    requestedTime: requestedTimeRaw,\n    requestedTimeISO,\n    matchFound: Boolean(hit),\n    slots: hit ? [hit.time] : slotsList.map(s => s.time)\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -688,
+        -560
+      ],
+      "id": "f5fc8c5d-65ae-4c7c-9ff7-5da0a558e647",
+      "name": "Match slot to request"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "89b41d7e-8132-4be7-b36e-47824feb8b17",
+              "leftValue": "={{ $json.matchFound }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -464,
+        -560
+      ],
+      "id": "a9e03f4e-66cd-4c1c-b1db-c526fac1a4bc",
+      "name": "Check slot matched"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "263146c6-01a8-44fc-bd92-a6cb2e793cda",
+              "leftValue": "={{ $('Check voice tool-call').item.json.EventTypeID }}",
+              "rightValue": "3954317",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "a16e410e-efe7-4d1b-b623-3251b0ae9bf2",
+              "leftValue": "={{ $('Check voice tool-call').item.json.EventTypeID }}",
+              "rightValue": "3954311",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -240,
+        -752
+      ],
+      "id": "71f7c7e4-43a4-4c81-9a18-cdafedb446f8",
+      "name": "Check peak-day event"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"results\": [\n    {\n      \"toolCallId\": \"{{ $('Tool-Calendar-Webhook1').item.json.body.message.toolCalls[0].id }}\",\n      \"result\": {\n        \"available\": true,\n        \"slots\": [\"{{ $json.requestedTime }}\"],\n        \"message\": \"Great. Seems that this slot with Doctor Chan is available. Would you like me to confirm this booking?\"\n      }\n    }\n  ]\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -16,
+        -848
+      ],
+      "id": "0aac4948-495b-400a-82b7-35b6ab933aa8",
+      "name": "Respond slots available"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"results\": [\n    {\n      \"toolCallId\": \"{{ $('Tool-Calendar-Webhook1').item.json.body.message.toolCalls[0].id }}\",\n      \"result\": {\n        \"available\": true,\n        \"slots\": [\"{{ $json.requestedTime }}\"],\n        \"message\": \"Great. Seems that this slot with Doctor Wong is available. Would you like me to confirm this booking?\"\n      }\n    }\n  ]\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -16,
+        -656
+      ],
+      "id": "7cb4e400-8b81-4872-99a6-effad6698abe",
+      "name": "Respond slots available retry"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "63f8e5f7-1274-486e-a29e-fa7c6c1d82c6",
+              "leftValue": "={{ $json.matchFound }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "3754d21d-dac6-4cdf-aadd-c0d32691f053",
+              "leftValue": "={{ $json.slots }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -240,
+        -368
+      ],
+      "id": "d3afc67b-6861-44ca-b407-da312eb27432",
+      "name": "Check fallback empty"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"results\": [\n    {\n       \"toolCallId\": \"{{ $('Tool-Calendar-Webhook1').item.json.body.message.toolCalls[0].id }}\",\n  \"result\": \"Unfortunately that specific time isn't available but we have {{ $('Match slot to request').item.json.slots }}\"\n    }\n  ]\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -16,
+        -272
+      ],
+      "id": "8614cab4-77bc-44b4-8229-2f5b178bca15",
+      "name": "Respond nearest slots"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7d7501f6-b357-4524-9c8d-75b29e1a820b",
+              "name": "startTime",
+              "value": "={{ \n  DateTime\n  .fromISO($('Extract tool-call args', { zone: 'utc' }).item.json.args.requestedTime, { zone: 'utc' })\n  .minus({ hours: 2 })\n  .toFormat(\"yyyy-MM-dd'T'HH:mm:ssZZ\") \n}}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -16,
+        -464
+      ],
+      "id": "43831235-8def-43f8-95b3-cabc87424e83",
+      "name": "Shift window next day"
+    },
+    {
+      "parameters": {
+        "url": "https://api.cal.com/v2/slots",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "calApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "eventTypeId",
+              "value": "={{ $('Extract call context').item.json.EventTypeID }}"
+            },
+            {
+              "name": "startTime",
+              "value": "={{ $json.startTime }}"
+            },
+            {
+              "name": "endTime",
+              "value": "={{ DateTime.fromISO($json.startTime, { zone: 'utc' }).plus({ hours: 6 }).toFormat(\"yyyy-MM-dd'T'HH:mm:ssZZ\") }}"
+            },
+            {
+              "name": "timeZone",
+              "value": "UTC"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        208,
+        -464
+      ],
+      "id": "04904f90-4a44-4938-9c71-a7dbdaa74914",
+      "name": "Fetch next-day slots",
+      "notesInFlow": false,
+      "alwaysOutputData": false,
+      "credentials": {
+        "calApi": {
+          "id": "",
+          "name": "Cal account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3754d21d-dac6-4cdf-aadd-c0d32691f053",
+              "leftValue": "={{ $json.slots }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        432,
+        -464
+      ],
+      "id": "89ad2061-3f80-4e86-901a-c40dc3cf3125",
+      "name": "Check retry slots found"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"results\": [\n    {\n       \"toolCallId\": \"{{ $('Tool-Calendar-Webhook1').item.json.body.message.toolCalls[0].id }}\",\n  \"result\": \"Unfortunately that specific time isn't available but we have {{ $json.slots }}\"\n    }\n  ]\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        656,
+        -560
+      ],
+      "id": "08758907-f89f-4296-a249-9acc46a00d61",
+      "name": "Respond retry slots"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"results\": [\n    {\n       \"toolCallId\": \"{{ $('Tool-Calendar-Webhook1').item.json.body.message.toolCalls[0].id }}\",\n  \"result\": \"Unfortunately we don't have any times on that day, did you have another day in mind that would work better?\"\n    }\n  ]\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        656,
+        -16
+      ],
+      "id": "ae2792cf-8cf6-497c-9b29-a1e4115d5018",
+      "name": "Respond day unavailable"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const raw = $('Extract tool-call args').item.json.args.phone || '';   // <-- change this line\nconst digits = raw.replace(/[^\\d]/g, ''); // keep only numbers\n\n// No phone provided\nif (!digits) {\n  return { json: { ...$json, phoneE164: null } };\n}\n\nlet normalized;\n\n// Case 1: Already starts with \"1\" (and valid length 11 digits total for US)\nif (digits.startsWith('1') && digits.length === 11) {\n  normalized = digits.slice(1); // remove the country code\n}\n// Case 2: Local US number (10 digits total)\nelse if (digits.length === 10) {\n  normalized = digits; // US local numbers do NOT have a leading 0\n}\n// Anything else \u2192 invalid\nelse {\n  throw new Error(`Invalid US phone \u2013 got \"${raw}\"`);\n}\n\n// Always output in E.164 format\nconst e164 = '+1' + normalized;\n\nreturn { json: { ...$json, phoneE164: e164 } };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1136,
+        16
+      ],
+      "id": "8890863e-1942-4daf-bf04-41856663a24b",
+      "name": "Parse caller phone booking",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7d7501f6-b357-4524-9c8d-75b29e1a820b",
+              "name": "startTime",
+              "value": "={{ DateTime\n  .fromISO($('Extract tool-call args', { zone: 'utc' }).item.json.args.requestedTime).toFormat(\"yyyy-MM-dd'T'HH:mm:ssZZ\") }}",
+              "type": "string"
+            },
+            {
+              "id": "a0461174-86f5-4576-a714-289c01cae073",
+              "name": "=requestedTime",
+              "value": "={{ DateTime\n  .fromISO($('Extract tool-call args', { zone: 'utc' }).item.json.args.requestedTime, { zone: 'utc' }).toFormat(\"yyyy-MM-dd'T'HH:mm:ssZZ\") }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -912,
+        16
+      ],
+      "id": "ea17f409-fc1c-428c-be66-1d03bbfac1df",
+      "name": "Set booking start time"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cal.com/v2/bookings",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "calApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "cal-api-version",
+              "value": "2024-09-04"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"attendee\": {\n    \"language\": \"en\",\n    \"name\": \"{{ $('Extract tool-call args').item.json.args.firstName }} {{ $('Extract tool-call args').item.json.args.lastName }}\",\n    \"timeZone\": \"UTC\",\n    \"phoneNumber\": \"{{ $('Parse caller phone booking').item.json.phoneE164 }}\"\n  },\n  \"start\": \"{{ $('Set booking start time').item.json.requestedTime }}\",\n  \"eventTypeSlug\": \"{{ $('Extract tool-call args').item.json.args.eventTypeSlug }}\",\n  \"teamSlug\": \"{{ $('Extract call context').item.json.username }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -688,
+        16
+      ],
+      "id": "53ea3915-748b-46bc-ba99-6dfb2d051bcc",
+      "name": "Create Cal booking",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000,
+      "credentials": {
+        "calApi": {
+          "id": "",
+          "name": "Cal account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"results\": [\n    {\n      \"toolCallId\": \"{{ $('Tool-Calendar-Webhook1').item.json.body.message.toolCalls[0].id }}\",\n      \"result\": \"Awesome! Your consultation has been successfully booked.\",\n      \"status\": \"success\",\n      \"bookingDetails\": {\n        \"id\": \"{{ $json.data.uid }}\",\n        \"time\": \"{{ $json.data.start }}\",\n        \"timezone\": \"{{ $json.data.attendees[0].timeZone }}\",\n        \"eventType\": \"{{ $json.data.eventType }}\",\n        \"meetingUrl\": \"{{ $json.data.meetingUrl }}\"\n      }\n    }\n  ]\n}\n",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -464,
+        -80
+      ],
+      "id": "792d22c9-a3bf-4356-a338-fd6b31a63a4d",
+      "name": "Respond booking confirmed",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "value": "AQMXHXaVe4O8Bga3",
+          "mode": "id"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "phone",
+              "keyValue": "={{ $('Extract tool-call args').item.json.args.phone }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "first_name": "={{ $('Extract tool-call args').item.json.args.firstName }}",
+            "last_name": "={{ $('Extract tool-call args').item.json.args.lastName }}",
+            "phone": "={{ $('Extract tool-call args').item.json.args.phone }}",
+            "appointment_uid": "={{ $('Create Cal booking').item.json.data.uid }}",
+            "appointment_time": "={{ new Date($('Create Cal booking').item.json.data.start).toLocaleString('en-US',{timeZone:'UTC',weekday:'long',month:'long',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true}).replace(',', ' at') }}",
+            "dob": "={{ $('Extract tool-call args').item.json.args.birthDate }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "dob",
+              "displayName": "dob",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "appointment_uid",
+              "displayName": "appointment_uid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "appointment_time",
+              "displayName": "appointment_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        -80
+      ],
+      "id": "1b5bff76-132e-4eda-88af-c574758207d1",
+      "name": "Record booking ID",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4d9eda2c-16c4-41b4-916c-d1e243713480",
+              "leftValue": "={{ $json.phone }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -16,
+        -80
+      ],
+      "id": "161a9cd5-8278-46d8-b7ab-f974e08a1fcf",
+      "name": "Check phone on record"
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "dataTableId": {
+          "value": "AQMXHXaVe4O8Bga3",
+          "mode": "id"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "phone",
+              "keyValue": "={{ $('Parse caller phone booking').item.json.phoneE164 }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "first_name": "={{ $('Extract tool-call args').item.json.args.firstName }}",
+            "last_name": "={{ $('Extract tool-call args').item.json.args.lastName }}",
+            "phone": "={{ $('Parse caller phone booking').item.json.phoneE164 }}",
+            "appointment_uid": "={{ $('Create Cal booking').item.json.data.uid }}",
+            "appointment_time": "={{ new Date($('Create Cal booking').item.json.data.start).toLocaleString('en-US', { timeZone: 'UTC' }) }}",
+            "dob": "={{ $('Extract tool-call args').item.json.args.birthDate }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "dob",
+              "displayName": "dob",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "appointment_uid",
+              "displayName": "appointment_uid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "appointment_time",
+              "displayName": "appointment_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        208,
+        -80
+      ],
+      "id": "c28f393e-90af-4b16-ae57-b19842dbd307",
+      "name": "Save new appointment",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "value": "AQMXHXaVe4O8Bga3",
+          "mode": "id"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "phone",
+              "keyValue": "={{ $('Extract tool-call args').item.json.args.phone }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "first_name": "={{ $('Extract tool-call args').item.json.args.firstName }}",
+            "last_name": "={{ $('Extract tool-call args').item.json.args.lastName }}",
+            "phone": "={{ $('Extract tool-call args').item.json.args.phone }}",
+            "dob": "={{ $('Extract tool-call args').item.json.args.birthDate }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "dob",
+              "displayName": "dob",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "appointment_uid",
+              "displayName": "appointment_uid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "appointment_time",
+              "displayName": "appointment_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        112
+      ],
+      "id": "f8ad1747-bf2d-4312-a537-090adab71a8d",
+      "name": "Record booking failure",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4d9eda2c-16c4-41b4-916c-d1e243713480",
+              "leftValue": "={{ $json.phone }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -16,
+        112
+      ],
+      "id": "80b743eb-5ac9-47f7-bd46-c7376c6b3901",
+      "name": "Check phone on record cancel"
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "dataTableId": {
+          "value": "AQMXHXaVe4O8Bga3",
+          "mode": "id"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "phone",
+              "keyValue": "={{ $('Parse caller phone booking').item.json.phoneE164 }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "first_name": "={{ $('Extract tool-call args').item.json.args.firstName }}",
+            "last_name": "={{ $('Extract tool-call args').item.json.args.lastName }}",
+            "phone": "={{ $('Parse caller phone booking').item.json.phoneE164 }}",
+            "dob": "={{ $('Extract tool-call args').item.json.args.birthDate }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "dob",
+              "displayName": "dob",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "appointment_uid",
+              "displayName": "appointment_uid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "appointment_time",
+              "displayName": "appointment_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        208,
+        112
+      ],
+      "id": "bd3f3e47-6edf-4889-a5c7-9cbebf0113d1",
+      "name": "Save appointment update",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "value": "AQMXHXaVe4O8Bga3",
+          "mode": "id"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "phone",
+              "keyValue": "={{ $('Extract tool-call args').item.json.args.phone }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -1136,
+        400
+      ],
+      "id": "1ef92e7c-5c2b-4705-bf03-1b6e1de6a314",
+      "name": "Find appointments by caller",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const raw = $('Extract tool-call args').item.json.args.phone || '';   // <-- change this line\nconst digits = raw.replace(/[^\\d]/g, ''); // keep only numbers\n\n// No phone provided\nif (!digits) {\n  return { json: { ...$json, phoneE164: null } };\n}\n\nlet normalized;\n\n// Case 1: Already starts with \"1\" (and valid length 11 digits total for US)\nif (digits.startsWith('1') && digits.length === 11) {\n  normalized = digits.slice(1); // remove the country code\n}\n// Case 2: Local US number (10 digits total)\nelse if (digits.length === 10) {\n  normalized = digits; // US local numbers do NOT have a leading 0\n}\n// Anything else \u2192 invalid\nelse {\n  throw new Error(`Invalid US phone \u2013 got \"${raw}\"`);\n}\n\n// Always output in E.164 format\nconst e164 = '+1' + normalized;\n\nreturn { json: { ...$json, phoneE164: e164 } };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -688,
+        480
+      ],
+      "id": "2c268e25-cdb8-438c-aabb-143e75248249",
+      "name": "Parse caller phone lookup",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4d9eda2c-16c4-41b4-916c-d1e243713480",
+              "leftValue": "={{ $json.number }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -912,
+        400
+      ],
+      "id": "759ca3ab-e222-4abd-ba63-fac17134799e",
+      "name": "Check caller identified"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "value": "AQMXHXaVe4O8Bga3",
+          "mode": "id"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "phone",
+              "keyValue": "={{ $json.phoneE164 }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        480
+      ],
+      "id": "271cd175-5bd3-41f5-a9d3-0d1cf7964946",
+      "name": "Find appointment by number",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4a5dd9c1-b859-4157-9ab9-fb1c2d7fe1b0",
+              "leftValue": "={{ $json.appointment_uid }}",
+              "rightValue": "Success",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -240,
+        400
+      ],
+      "id": "62381676-d445-4304-94e4-a254ffcaadac",
+      "name": "Check active booking"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"results\": [\n    {\n       \"toolCallId\": \"{{ $('Tool-Calendar-Webhook1').item.json.body.message.toolCalls[0].id }}\",\n  \"result\": \"Great! I was able to retrieve and cancel your current booking for {{ $json.appointment_time }}. What time do you want to reschedule your appointment? UID = {{ $json.appointment_uid }}\"\n    }\n  ]\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -16,
+        304
+      ],
+      "id": "29731c7b-82ad-43e8-846b-0c1ac74a11c5",
+      "name": "Respond booking details"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"results\": [\n    {\n       \"toolCallId\": \"{{ $('Tool-Calendar-Webhook1').item.json.body.message.toolCalls[0].id }}\",\n  \"result\": \"It seems that I wasn't able to retrieve any current booking under that email. Would you please check if that is the correct email associated with the booking?\"\n    }\n  ]\n}",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -16,
+        496
+      ],
+      "id": "8f20048c-5d53-4a67-9334-7e166349eac9",
+      "name": "Respond no booking found"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "value": "AQMXHXaVe4O8Bga3",
+          "mode": "id"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "phone",
+              "keyValue": "={{ $('Extract tool-call args').item.json.args.phone }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -1136,
+        1168
+      ],
+      "id": "08630e93-0dfe-4f86-b1ec-3d314ec918f9",
+      "name": "Find appointment to cancel",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const raw = $('Extract tool-call args').item.json.args.phone || '';   // <-- change this line\nconst digits = raw.replace(/[^\\d]/g, ''); // keep only numbers\n\n// No phone provided\nif (!digits) {\n  return { json: { ...$json, phoneE164: null } };\n}\n\nlet normalized;\n\n// Case 1: Already starts with \"1\" (and valid length 11 digits total for US)\nif (digits.startsWith('1') && digits.length === 11) {\n  normalized = digits.slice(1); // remove the country code\n}\n// Case 2: Local US number (10 digits total)\nelse if (digits.length === 10) {\n  normalized = digits; // US local numbers do NOT have a leading 0\n}\n// Anything else \u2192 invalid\nelse {\n  throw new Error(`Invalid US phone \u2013 got \"${raw}\"`);\n}\n\n// Always output in E.164 format\nconst e164 = '+1' + normalized;\n\nreturn { json: { ...$json, phoneE164: e164 } };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -688,
+        1104
+      ],
+      "id": "e9531dcd-73d7-4a9f-9ea2-9ebb31bccf64",
+      "name": "Parse caller phone cancel",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4d9eda2c-16c4-41b4-916c-d1e243713480",
+              "leftValue": "={{ $json.number }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -912,
+        1168
+      ],
+      "id": "3bb59955-158b-4e5c-9aa7-d612164ee982",
+      "name": "Check cancellation target"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "value": "AQMXHXaVe4O8Bga3",
+          "mode": "id"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "phone",
+              "keyValue": "={{ $json.phoneE164 }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        1104
+      ],
+      "id": "6ba55452-f2b4-4a83-9763-49ebdd9fa2ac",
+      "name": "Find appointment by number cancel",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4a5dd9c1-b859-4157-9ab9-fb1c2d7fe1b0",
+              "leftValue": "={{ $json.appointment_uid }}",
+              "rightValue": "Success",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -240,
+        1168
+      ],
+      "id": "0f37c6f5-1e34-44e3-95c3-26154ad733b7",
+      "name": "Check booking UID present"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.cal.com/v2/bookings/{{ $json.appointment_uid }}/cancel ",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "cal-api-version",
+              "value": "2024-09-04"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "cancellationReason",
+              "value": "User requested cancellation"
+            }
+          ]
+        },
+        "options": {},
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "calApi"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -16,
+        1168
+      ],
+      "id": "04e9222f-f83b-417a-b242-b22942293a63",
+      "name": "Cancel Cal booking",
+      "credentials": {
+        "calApi": {
+          "id": "",
+          "name": "Cal account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"results\": [\n    {\n       \"toolCallId\": \"{{ $('Tool-Calendar-Webhook1').item.json.body.message.toolCalls[0].id }}\",\n  \"result\": \"Great, You're booking was successfully cancelled.\"\n    }\n  ]\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        208,
+        1168
+      ],
+      "id": "e141bb84-885c-45c3-972f-9ddea8f03012",
+      "name": "Respond booking cancelled"
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "dataTableId": {
+          "value": "AQMXHXaVe4O8Bga3",
+          "mode": "id"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "phone",
+              "keyValue": "={{ $json.data.attendees[0].phoneNumber }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "appointment_uid": "=canceled",
+            "appointment_time": "=canceled"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "dob",
+              "displayName": "dob",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "appointment_uid",
+              "displayName": "appointment_uid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "appointment_time",
+              "displayName": "appointment_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        416,
+        1168
+      ],
+      "id": "e3d81eff-57c8-4dfc-8db4-f8be6ecb4a67",
+      "name": "Save cancellation",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7d7501f6-b357-4524-9c8d-75b29e1a820b",
+              "name": "startTime",
+              "value": "={{ DateTime\n  .fromISO($('Extract tool-call args', { zone: 'utc' }).item.json.args.start, { zone: 'utc' }).toFormat(\"yyyy-MM-dd'T'HH:mm:ssZZ\") }}",
+              "type": "string"
+            },
+            {
+              "id": "17a70aa2-b8f4-4ebe-9d10-5e8fa6e05511",
+              "name": "bookingUID",
+              "value": "={{ $('Extract tool-call args').item.json.args.bookinguid }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1136,
+        816
+      ],
+      "id": "88a82a7c-f234-4e8a-99c5-892a20baa3cc",
+      "name": "Set reschedule time"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.cal.com/v2/bookings/{{ $json.bookingUID }}/reschedule",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "cal-api-version",
+              "value": "2024-09-04"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"start\": \"{{ $json.startTime }}\",\n  \"reschedulingReason\": \"Phone reschedule\"\n}",
+        "options": {},
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "calApi"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -912,
+        816
+      ],
+      "id": "209ef95e-00b7-4f2d-9a21-216c9c53ce70",
+      "name": "Reschedule Cal booking",
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "calApi": {
+          "id": "",
+          "name": "Cal account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"results\": [\n    {\n      \"toolCallId\": \"{{ $('Tool-Calendar-Webhook1').item.json.body.message.toolCalls[0].id }}\",\n      \"result\": \"Awesome! Your consultation has been successfully re-booked.\",\n      \"status\": \"success\",\n      \"bookingDetails\": {\n        \"id\": \"{{ $json.data.uid }}\",\n        \"time\": \"{{ $json.data.start }}\",\n        \"timezone\": \"{{ $json.data.attendees[0].timeZone }}\",\n        \"eventType\": \"{{ $json.data.eventType }}\",\n        \"meetingUrl\": \"{{ $json.data.meetingUrl }}\"\n      }\n    }\n  ]\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -688,
+        720
+      ],
+      "id": "1b5c460e-2f44-4b78-bead-cb6b9a62684a",
+      "name": "Respond reschedule confirmed",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "value": "AQMXHXaVe4O8Bga3",
+          "mode": "id"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "phone",
+              "keyValue": "={{ $json.data.attendees[0].phoneNumber }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        720
+      ],
+      "id": "9358f0bb-60ab-468b-8f86-2f2238924c10",
+      "name": "Find appointment to reschedule",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const raw = $('Extract tool-call args').item.json.args.phone || '';   // <-- change this line\nconst digits = raw.replace(/[^\\d]/g, ''); // keep only numbers\n\n// No phone provided\nif (!digits) {\n  return { json: { ...$json, phoneE164: null } };\n}\n\nlet normalized;\n\n// Case 1: Already starts with \"1\" (and valid length 11 digits total for US)\nif (digits.startsWith('1') && digits.length === 11) {\n  normalized = digits.slice(1); // remove the country code\n}\n// Case 2: Local US number (10 digits total)\nelse if (digits.length === 10) {\n  normalized = digits; // US local numbers do NOT have a leading 0\n}\n// Anything else \u2192 invalid\nelse {\n  throw new Error(`Invalid US phone \u2013 got \"${raw}\"`);\n}\n\n// Always output in E.164 format\nconst e164 = '+1' + normalized;\n\nreturn { json: { ...$json, phoneE164: e164 } };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -16,
+        816
+      ],
+      "id": "4de2ddf6-d7eb-47c4-89cd-d550afc09558",
+      "name": "Parse caller phone reschedule",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "value": "AQMXHXaVe4O8Bga3",
+          "mode": "id"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "phone",
+              "keyValue": "={{ $json.phoneE164 }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        208,
+        816
+      ],
+      "id": "32b72df2-29d7-485e-bdd2-8067c023c152",
+      "name": "Find appointment by number reschedule",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4d9eda2c-16c4-41b4-916c-d1e243713480",
+              "leftValue": "={{ $json.phone }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -240,
+        720
+      ],
+      "id": "10fb36d3-834c-43f1-befc-46ab20172ae8",
+      "name": "Check caller phone present"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4a5dd9c1-b859-4157-9ab9-fb1c2d7fe1b0",
+              "leftValue": "={{ $json.appointment_uid }}",
+              "rightValue": "Success",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        432,
+        720
+      ],
+      "id": "3b1b2f62-7225-4d62-9b3e-1f6e6b7bd30b",
+      "name": "Check rescheduled UID"
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "dataTableId": {
+          "value": "AQMXHXaVe4O8Bga3",
+          "mode": "id"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "phone",
+              "keyValue": "={{ $json.phone }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "appointment_uid": "={{ $('Reschedule Cal booking').item.json.data.uid }}",
+            "appointment_time": "={{ new Date($('Reschedule Cal booking').item.json.data.start).toLocaleString('en-US',{timeZone:'UTC',weekday:'long',month:'long',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true}).replace(',', ' at') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "dob",
+              "displayName": "dob",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "appointment_uid",
+              "displayName": "appointment_uid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "appointment_time",
+              "displayName": "appointment_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        656,
+        192
+      ],
+      "id": "e46d6a20-f3de-40a4-8c3f-4097c7919bd1",
+      "name": "Save rescheduled appointment",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        656,
+        816
+      ],
+      "id": "ea738536-8a35-4ee3-92f9-0fd4c0cfc8b0",
+      "name": "End without changes"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7c8d401f-069b-4aad-a9f9-d9e587044b3c",
+              "name": "username",
+              "value": "vapiai",
+              "type": "string"
+            },
+            {
+              "id": "cdd5a50e-4864-4723-8af2-2b0c1d17fdce",
+              "name": "EventTypeID",
+              "value": "={{ $('Extract tool-call args').item.json.args.EventTypeID }}",
+              "type": "string"
+            },
+            {
+              "id": "a10b6d50-d299-4210-862e-08dfafe35288",
+              "name": "=timeZone",
+              "value": "={{ $('Extract tool-call args').item.json.args?.timeZone || $json.timeZone || 'America/New_york' }}",
+              "type": "string"
+            },
+            {
+              "id": "53648a31-b65e-47dc-8485-d9f414b2ba01",
+              "name": "requestedTimeRaw",
+              "value": "={{ $('Extract tool-call args').item.json.args?.requestedTime || $json.requestedTime || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "7dfe6436-a2e9-40a7-b1ce-e52e9b237c20",
+              "name": "startTime",
+              "value": "={{ $('Extract tool-call args').item.json.args.requestedTime }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1808,
+        400
+      ],
+      "id": "669d01b9-4fab-44d3-8e23-2dc79549c648",
+      "name": "Extract call context"
+    },
+    {
+      "name": "Extract tool-call args",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const msg = $input.first().json.body.message;\nconst call = (msg.toolCalls || [])[0] || {};\nconst fn = call.function || {};\nreturn [{ json: { ...$input.first().json, args: fn.arguments || {}, toolCallId: call.id || null } }];"
+      }
+    },
+    {
+      "name": "Respond booking error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "= {\n  \"results\": [\n    {\n      \"toolCallId\": \"{{ $('Tool-Calendar-Webhook1').item.json.body.message.toolCalls[0].id }}\",\n      \"result\": { \"error\": \"Booking failed, please try again.\" }\n    }\n  ]\n}",
+        "options": {
+          "responseCode": 500
+        }
+      }
+    },
+    {
+      "name": "Respond lookup error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "= {\n  \"results\": [\n    {\n      \"toolCallId\": \"{{ $('Tool-Calendar-Webhook1').item.json.body.message.toolCalls[0].id }}\",\n      \"result\": { \"error\": \"Lookup failed, please try again.\" }\n    }\n  ]\n}",
+        "options": {
+          "responseCode": 500
+        }
+      }
+    },
+    {
+      "name": "Respond cancel error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "= {\n  \"results\": [\n    {\n      \"toolCallId\": \"{{ $('Tool-Calendar-Webhook1').item.json.body.message.toolCalls[0].id }}\",\n      \"result\": { \"error\": \"Cancellation failed, please try again.\" }\n    }\n  ]\n}",
+        "options": {
+          "responseCode": 500
+        }
+      }
+    },
+    {
+      "name": "Respond reschedule error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "= {\n  \"results\": [\n    {\n      \"toolCallId\": \"{{ $('Tool-Calendar-Webhook1').item.json.body.message.toolCalls[0].id }}\",\n      \"result\": { \"error\": \"Scheduling service temporarily unavailable, please try again.\" }\n    }\n  ]\n}",
+        "options": {
+          "responseCode": 500
+        }
+      }
+    },
+    {
+      "name": "Respond unknown function",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "= {\n  \"results\": [\n    {\n      \"toolCallId\": \"{{ $('Tool-Calendar-Webhook1').item.json.body.message.toolCalls[0].id }}\",\n      \"result\": { \"error\": \"Unknown scheduling action, please rephrase.\" }\n    }\n  ]\n}",
+        "options": {
+          "responseCode": 400
+        }
+      }
+    },
+    {
+      "name": "Respond availability error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "= {\n  \"results\": [\n    {\n      \"toolCallId\": \"{{ $('Tool-Calendar-Webhook1').item.json.body.message.toolCalls[0].id }}\",\n      \"result\": { \"error\": \"Availability check failed, please try again.\" }\n    }\n  ]\n}",
+        "options": {
+          "responseCode": 500
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Tool-Calendar-Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Extract tool-call args",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check voice tool-call": {
+      "main": [
+        [
+          {
+            "node": "Route by function name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by function name": {
+      "main": [
+        [
+          {
+            "node": "Set availability window",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Parse caller phone booking",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Find appointments by caller",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Find appointment to cancel",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set reschedule time",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond unknown function",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond unknown function",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set availability window": {
+      "main": [
+        [
+          {
+            "node": "Fetch day slots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch day slots": {
+      "main": [
+        [
+          {
+            "node": "Match slot to request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond availability error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond availability error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match slot to request": {
+      "main": [
+        [
+          {
+            "node": "Check slot matched",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check slot matched": {
+      "main": [
+        [
+          {
+            "node": "Check peak-day event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check fallback empty",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check peak-day event": {
+      "main": [
+        [
+          {
+            "node": "Respond slots available",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond slots available retry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check fallback empty": {
+      "main": [
+        [
+          {
+            "node": "Shift window next day",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond nearest slots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shift window next day": {
+      "main": [
+        [
+          {
+            "node": "Fetch next-day slots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch next-day slots": {
+      "main": [
+        [
+          {
+            "node": "Check retry slots found",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond availability error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond availability error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check retry slots found": {
+      "main": [
+        [
+          {
+            "node": "Respond retry slots",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond day unavailable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse caller phone booking": {
+      "main": [
+        [
+          {
+            "node": "Set booking start time",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond booking error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set booking start time": {
+      "main": [
+        [
+          {
+            "node": "Create Cal booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Cal booking": {
+      "main": [
+        [
+          {
+            "node": "Respond booking confirmed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond booking error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond booking confirmed": {
+      "main": [
+        [
+          {
+            "node": "Record booking ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record booking ID": {
+      "main": [
+        [
+          {
+            "node": "Check phone on record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check phone on record": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Save new appointment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record booking failure": {
+      "main": [
+        [
+          {
+            "node": "Check phone on record cancel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check phone on record cancel": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Save appointment update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find appointments by caller": {
+      "main": [
+        [
+          {
+            "node": "Check caller identified",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse caller phone lookup": {
+      "main": [
+        [
+          {
+            "node": "Find appointment by number",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond lookup error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check caller identified": {
+      "main": [
+        [
+          {
+            "node": "Check active booking",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Parse caller phone lookup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find appointment by number": {
+      "main": [
+        [
+          {
+            "node": "Check active booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check active booking": {
+      "main": [
+        [
+          {
+            "node": "Respond booking details",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond no booking found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond booking details": {
+      "main": [
+        []
+      ]
+    },
+    "Find appointment to cancel": {
+      "main": [
+        [
+          {
+            "node": "Check cancellation target",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse caller phone cancel": {
+      "main": [
+        [
+          {
+            "node": "Find appointment by number cancel",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond cancel error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check cancellation target": {
+      "main": [
+        [
+          {
+            "node": "Check booking UID present",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Parse caller phone cancel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find appointment by number cancel": {
+      "main": [
+        [
+          {
+            "node": "Check booking UID present",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check booking UID present": {
+      "main": [
+        [
+          {
+            "node": "Cancel Cal booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cancel Cal booking": {
+      "main": [
+        [
+          {
+            "node": "Respond booking cancelled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond booking cancelled": {
+      "main": [
+        [
+          {
+            "node": "Save cancellation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set reschedule time": {
+      "main": [
+        [
+          {
+            "node": "Reschedule Cal booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reschedule Cal booking": {
+      "main": [
+        [
+          {
+            "node": "Respond reschedule confirmed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond reschedule error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond reschedule confirmed": {
+      "main": [
+        [
+          {
+            "node": "Find appointment to reschedule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find appointment to reschedule": {
+      "main": [
+        [
+          {
+            "node": "Check caller phone present",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse caller phone reschedule": {
+      "main": [
+        [
+          {
+            "node": "Find appointment by number reschedule",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond reschedule error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find appointment by number reschedule": {
+      "main": [
+        [
+          {
+            "node": "Check rescheduled UID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check caller phone present": {
+      "main": [
+        [
+          {
+            "node": "Check rescheduled UID",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Parse caller phone reschedule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check rescheduled UID": {
+      "main": [
+        [
+          {
+            "node": "Save rescheduled appointment",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "End without changes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract call context": {
+      "main": [
+        [
+          {
+            "node": "Check voice tool-call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract tool-call args": {
+      "main": [
+        [
+          {
+            "node": "Extract call context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond booking error": {
+      "main": [
+        [
+          {
+            "node": "Record booking failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0e0e7e3f-066e-4b8a-b2ab-9c7359a75f1d",
+  "meta": {
+    "migratedFrom": "llama-harness/wf-vapi-scheduling (export sanitized: active=false, pinData stripped, credential ids emptied)",
+    "mock": "demo event IDs remapped; write-branches untested against real Cal.com"
+  },
+  "id": "eOVoYDSPSgqYh1Gj",
+  "tags": []
+}
