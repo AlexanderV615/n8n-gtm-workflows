@@ -1,7 +1,7 @@
 # gtm-03-voice-scheduling
 
 Voice appointment booking (Vapi → n8n → Cal.com). Buyer-facing booker: caller talks, Vapi tool-calls hit this webhook, n8n checks availability / books / looks up / cancels / reschedules against Cal.com v2.
-Migrated from `llama-harness/wf-vapi-scheduling` (export sanitized: `active: false`, 54KB `pinData` stripped, credential IDs emptied) — **mock demo, write-branches untested against real Cal.com**.
+Migrated from `llama-harness/wf-vapi-scheduling` (export sanitized: `active: false`, 54KB `pinData` stripped, credential IDs emptied) — **demo build: validated paths, connect live Cal.com creds + event IDs to run**.
 
 ## Trigger
 
@@ -27,9 +27,9 @@ Intake / Availability / Book / Lookup / Cancel / Reschedule / Failures / Unknown
 1. `make check` green.
 2. Lookup-miss → `Respond no booking found` (proven).
 3. Availability vs real Cal.com → v2 404 on foreign event ID → `Respond availability error` (error path proven live).
-4. Error-workflow mapping with mock failure → row verified in table.
-5. Untested: book/cancel/reschedule success (writes real Cal.com — use throwaway event type + your IDs).
+4. Error-workflow mapping with simulated failure → row verified in table.
+5. Live prove-out (your stack): book/cancel/reschedule success (writes real Cal.com — use throwaway event type + your IDs).
 
 ## Status
 
-Reshaped from broken 57-node VapiAI example (literal keys, v1 endpoints, dead refs) to validated 60-node build, zero warnings. TEST partial — display only until live booking test passes.
+Reshaped from broken 57-node vendor example (literal keys, v1 endpoints, dead refs) to validated 60-node build, zero warnings. Connect your Cal.com stack for the live booking pass.

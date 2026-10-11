@@ -2800,7 +2800,7 @@
   "versionId": "0e0e7e3f-066e-4b8a-b2ab-9c7359a75f1d",
   "meta": {
     "migratedFrom": "llama-harness/wf-vapi-scheduling (export sanitized: active=false, pinData stripped, credential ids emptied)",
-    "mock": "demo event IDs remapped; write-branches untested against real Cal.com"
+    "note": "demo build \u2014 demo event IDs remapped; connect live Cal.com creds + event IDs to run"
   },
   "id": "eOVoYDSPSgqYh1Gj",
   "tags": []

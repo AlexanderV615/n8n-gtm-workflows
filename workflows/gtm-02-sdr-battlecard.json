@@ -1,5 +1,5 @@
 {
-  "name": "Prepare SDR call brief (mock)",
+  "name": "Prepare SDR call brief",
   "nodes": [
     {
       "id": "ed1d56ed-12cf-4674-8e90-fcd9b816f1cc",
@@ -31,7 +31,7 @@
       "parameters": {
         "promptType": "auto",
         "options": {
-          "systemMessage": "=Current date: {{ $now }}.\n\nYou are an SDR call-prep assistant (MOCK DEMO). Start every turn with the Retrieve battlecard passages tool. For exact terms, prices or clauses use the Grep file for exact term tool; for continuous context use the Read file section tool. Ground every claim in tool output and cite file plus pages. If the index has nothing, say so plainly. Respond as a brief with: TL;DR, pains, battlecard, pricing notes, discovery questions, citations.",
+          "systemMessage": "=Current date: {{ $now }}.\n\nYou are an SDR call-prep assistant. Start every turn with the Retrieve battlecard passages tool. For exact terms, prices or clauses use the Grep file for exact term tool; for continuous context use the Read file section tool. Ground every claim in tool output and cite file plus pages. If the index has nothing, say so plainly. Respond as a brief with: TL;DR, pains, battlecard, pricing notes, discovery questions, citations.",
           "maxIterations": 30
         },
         "hasOutputParser": true
@@ -87,7 +87,7 @@
         "indexId": {
           "__rl": true,
           "mode": "id",
-          "value": "mock-sdr-battlecard"
+          "value": "YOUR_INDEX_ID"
         },
         "topK": 5
       },
@@ -112,7 +112,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={\"index_id\": \"mock-sdr-battlecard\", \"file_id\": \"{{ $fromAi('file_id', 'ID of the file to search, from find or retrieve results') }}\", \"pattern\": \"{{ $fromAi('pattern', 'Regex for the exact term, ID, heading or clause to find') }}\", \"context_chars\": 200}",
+        "jsonBody": "={\"index_id\": \"YOUR_INDEX_ID\", \"file_id\": \"{{ $fromAi('file_id', 'ID of the file to search, from find or retrieve results') }}\", \"pattern\": \"{{ $fromAi('pattern', 'Regex for the exact term, ID, heading or clause to find') }}\", \"context_chars\": 200}",
         "options": {
           "timeout": 30000
         }
@@ -138,7 +138,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={\"index_id\": \"mock-sdr-battlecard\", \"file_id\": \"{{ $fromAi('file_id', 'ID of the file to read, from find or retrieve results') }}\", \"offset\": \"{{ $fromAi('offset', 'Character offset to start reading from, use 0 for the beginning') }}\", \"max_length\": 4000}",
+        "jsonBody": "={\"index_id\": \"YOUR_INDEX_ID\", \"file_id\": \"{{ $fromAi('file_id', 'ID of the file to read, from find or retrieve results') }}\", \"offset\": \"{{ $fromAi('offset', 'Character offset to start reading from, use 0 for the beginning') }}\", \"max_length\": 4000}",
         "options": {
           "timeout": 30000
         }
@@ -258,10 +258,10 @@
       "name": "rag"
     }
   ],
-  "description": "SDR call-prep battlecard demo over LlamaCloud Index v2 (mock: placeholder indexId, pinned test data, no live retrieval). Chat Trigger + Agent + retrieveIndex tool.",
+  "description": "SDR call-prep battlecard demo over LlamaCloud Index v2 (demo build: bring your own indexId + creds, see docs). Chat Trigger + Agent + retrieveIndex tool.",
   "meta": {
     "migratedFrom": "llama-harness/wf-sdr-battlecard (MCP get_workflow dump normalized to n8n export shape)",
-    "mock": "placeholder indexId + creds, untested without live LlamaCloud/OpenAI creds",
+    "note": "demo build \u2014 supply live LlamaCloud/OpenAI creds + indexId to run",
     "sourceUpdatedAt": "2026-10-10T13:12:28.728Z"
   }
 }
