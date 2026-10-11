@@ -22,7 +22,7 @@ Docs dropped in the watched Drive folder. Re-dropping the same file overwrites s
 
 1. Import `workflows/gtm-01-second-brain-ingest.json` into n8n (inactive by default).
 2. Attach Google credential to nodes 2+3, Jina Bearer key to node 7.
-3. Create collection: `./scripts/gtm-01-create-collection.sh` (default `wf-01`, 1024-dim cosine — rename via `WF_COLLECTION` + node 9 URL for `gtm-01` naming).
+3. Create collection: `./scripts/gtm-01-create-collection.sh` (default `gtm-01`, 1024-dim cosine — rename via `WF_COLLECTION` + node 9 URL for `gtm-01` naming).
 4. Reachability: `./scripts/gtm-01-join-network.sh` (or re-point node 9 URL).
 5. Activate + test run.
 

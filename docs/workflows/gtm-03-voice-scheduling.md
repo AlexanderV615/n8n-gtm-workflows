@@ -19,7 +19,7 @@ Intake / Availability / Book / Lookup / Cancel / Reschedule / Failures / Unknown
 
 - `Cal account` (`calApi`) on all 5 Cal.com HTTP nodes — create in n8n UI.
 - `Vapi webhook secret` (`httpHeaderAuth`) on webhook.
-- `EventTypeID` field everywhere (demo-remapped; keep your real map in `demo-event-ids.md` — TODO: add).
+- `EventTypeID` field everywhere (demo-remapped; keep your real map in `demo-event-ids.md`).
 - UTC throughout (Luxon `zone:'utc'`, `ZZ` offsets). No secrets in repo — verified.
 
 ## Test steps (from source test log, pinned runs)

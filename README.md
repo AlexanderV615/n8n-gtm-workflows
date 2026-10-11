@@ -7,7 +7,7 @@ Mono-repo for n8n GTM workflows. Each workflow is an exported JSON in `workflows
 1. Clone: `git clone https://github.com/AlexanderV615/n8n-gtm-workflows.git`
 2. In n8n: Workflows → … → Import from file → pick `workflows/gtm-XX-slug.json`
 3. Copy `.env.example` to `.env`, fill creds (never commit `.env`)
-4. Recreate credentials in n8n (HubSpot / Sheets / Slack) — exports never contain secrets
+4. Recreate credentials in n8n (Google OAuth, Jina Bearer key, OpenAI, LlamaCloud, Cal.com, webhook header secret — see each workflow doc) — exports never contain secrets
 
 ## Layout
 

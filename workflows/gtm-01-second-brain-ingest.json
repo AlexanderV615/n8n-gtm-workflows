@@ -1,9 +1,9 @@
 {
-  "name": "wf-01-stage1",
+  "name": "gtm-01-stage1",
   "nodes": [
     {
       "parameters": {
-        "content": "## wf-01 stage-1: Drive poll → chunk → embed → Qdrant\n**Buyer setup (5 min):**\n1. Google OAuth credential on nodes 2+3 (any Google credential).\n2. Jina key: create credential type `Bearer Auth` (raw key only), attach to node 7 `credentials.httpBearerAuth`.\n3. Create collection once: `curl -X PUT localhost:6333/collections/wf-01 -H 'Content-Type: application/json' -d '{\"vectors\":{\"size\":1024,\"distance\":\"Cosine\"}}'`.\n4. Join networks so n8n reaches Qdrant: `docker network connect n8n-self-hosted_default qdrant` (or re-point node 9 URL).\n5. Tune here: node 2 `queryString`/folder, node 5 `chunkSize`, node 6 model/dims, node 9 collection name.\n**Design:** batch embed (1 Jina call) → deterministic pointIds (re-drop overwrites, zero new points) → single Qdrant upsert. Failures land on node 10 (wire Slack/email there for prod).",
+        "content": "## gtm-01 stage-1: Drive poll → chunk → embed → Qdrant\n**Buyer setup (5 min):**\n1. Google OAuth credential on nodes 2+3 (any Google credential).\n2. Jina key: create credential type `Bearer Auth` (raw key only), attach to node 7 `credentials.httpBearerAuth`.\n3. Create collection once: `curl -X PUT localhost:6333/collections/gtm-01 -H 'Content-Type: application/json' -d '{\"vectors\":{\"size\":1024,\"distance\":\"Cosine\"}}'`.\n4. Join networks so n8n reaches Qdrant: `docker network connect n8n-self-hosted_default qdrant` (or re-point node 9 URL).\n5. Tune here: node 2 `queryString`/folder, node 5 `chunkSize`, node 6 model/dims, node 9 collection name.\n**Design:** batch embed (1 Jina call) → deterministic pointIds (re-drop overwrites, zero new points) → single Qdrant upsert. Failures land on node 10 (wire Slack/email there for prod).",
         "height": 480,
         "width": 420,
         "color": 4
@@ -139,7 +139,7 @@
     {
       "parameters": {
         "method": "PUT",
-        "url": "http://qdrant:6333/collections/wf-01/points",
+        "url": "http://qdrant:6333/collections/gtm-01/points",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ $('8. Build upsert body').item.json.pointsBody }}",
@@ -158,7 +158,7 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "// 10. Error Log — structured failure record, visible in executions.\n// Template: wire Slack/email here for prod. Error item carries the upstream message.\nconst e = $input.first().json;\nconst msg = (e && (e.error?.message || e.message)) || JSON.stringify(e).slice(0, 500);\nreturn [{ json: { error: 'wf-01-stage1-failure', message: msg, time: new Date().toISOString() } }];"
+        "jsCode": "// 10. Error Log — structured failure record, visible in executions.\n// Template: wire Slack/email here for prod. Error item carries the upstream message.\nconst e = $input.first().json;\nconst msg = (e && (e.error?.message || e.message)) || JSON.stringify(e).slice(0, 500);\nreturn [{ json: { error: 'gtm-01-stage1-failure', message: msg, time: new Date().toISOString() } }];"
       },
       "id": "error-log",
       "name": "10. Error Log (wire Slack/email for prod)",
@@ -211,7 +211,7 @@
   "settings": {},
   "pinData": {},
   "versionId": "",
-  "id": "wf-01-stage1",
+  "id": "gtm-01-stage1",
   "meta": { "instanceId": "alex-demo" },
   "staticData": null,
   "active": false,
