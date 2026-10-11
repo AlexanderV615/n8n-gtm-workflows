@@ -2,3 +2,5 @@
 *.log
 node_modules/
 .DS_Store
+# local authoring template, not part of the published repo
+docs/workflows/_template.md
